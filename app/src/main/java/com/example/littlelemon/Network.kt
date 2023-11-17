@@ -10,8 +10,14 @@ data class MenuNetwork(
 
 @Serializable
 data class MenuItemNetwork(
+
+    @SerialName("id")
     val id : Int,
+
+    @SerialName("title")
     val title : String,
+
+    @SerialName("price")
     val price : String
 ) {
     fun toMenuItemRoom() = MenuItemRoom(

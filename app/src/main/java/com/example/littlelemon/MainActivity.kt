@@ -14,6 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -51,7 +54,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LittleLemonTheme {
                 // add databaseMenuItems code here
-
+                val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
                 // add orderMenuItems variable here
 
                 // add menuItems variable here
@@ -73,6 +76,8 @@ class MainActivity : ComponentActivity() {
                     // Add OutlinedTextField
 
                     // add is not empty check here
+
+                    MenuItemsList(items = databaseMenuItems)
                 }
             }
         }
