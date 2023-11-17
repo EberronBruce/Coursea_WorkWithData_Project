@@ -33,6 +33,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.Exception
 
+const val MAIN_ACTIVITY = "MAIN ACTIVITY"
+
 class MainActivity : ComponentActivity() {
     private val httpClient = HttpClient(Android) {
         install(ContentNegotiation) {
@@ -77,7 +79,14 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             if (database.menuItemDao().isEmpty()) {
-                // add code here
+                try {
+                    val menuItems = fetchMenu()
+                    val roomMenuItems = menuItems.map { it.toMenuItemRoom() }
+                    database.menuItemDao().insertAll(*roomMenuItems.toTypedArray())
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                    Log.e(MAIN_ACTIVITY, e.localizedMessage ?: "Error: Unable to populate database from server")
+                }
             }
         }
     }
@@ -86,13 +95,13 @@ class MainActivity : ComponentActivity() {
         // data URL: https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonSimpleMenu.json
         return try {
             val response : MenuNetwork = httpClient.get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonSimpleMenu.json").body()
-            Log.d("Fetch Menu", "${response.menu}")
+            Log.d(MAIN_ACTIVITY, "${response.menu}")
             response.menu
         } catch (e: Exception) {
             println("Something went wrong with the web call")
             e.printStackTrace()
             e.localizedMessage
-            Log.e("Fetch Menu", "${e.message}")
+            Log.e(MAIN_ACTIVITY, "${e.message}")
             emptyList()
         }
     }
