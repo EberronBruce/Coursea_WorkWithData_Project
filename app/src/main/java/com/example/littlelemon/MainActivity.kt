@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -56,12 +60,19 @@ class MainActivity : ComponentActivity() {
                 // add databaseMenuItems code here
                 val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
                 // add orderMenuItems variable here
+                var orderMenuItems by remember { mutableStateOf(false) }
 
                 // add menuItems variable here
+                var menuItems = if (orderMenuItems) {
+                    databaseMenuItems.sortedBy { it.title }
+                } else {
+                    databaseMenuItems
+                }
 
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.logo),
@@ -70,14 +81,36 @@ class MainActivity : ComponentActivity() {
                     )
 
                     // add Button code here
+                    Button(
+                        onClick = { orderMenuItems = !orderMenuItems },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(if (orderMenuItems) "Tap to Order By Name (Ordered)" else "Tap to Order By Name")
+                    }
 
                     // add searchPhrase variable here
+                    var searchPhrase by remember { mutableStateOf("") }
 
                     // Add OutlinedTextField
+                    OutlinedTextField(
+                        value = searchPhrase,
+                        onValueChange = {
+                            searchPhrase = it
+                        },
+                        label = { Text("Search") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 50.dp, end = 50.dp)
+                        )
 
                     // add is not empty check here
+                    if (searchPhrase.isNotBlank()) {
+                        menuItems = menuItems.filter {
+                            it.title.contains(searchPhrase, ignoreCase = true)
+                        }
+                    }
 
-                    MenuItemsList(items = databaseMenuItems)
+                    MenuItemsList(items = menuItems)
                 }
             }
         }
