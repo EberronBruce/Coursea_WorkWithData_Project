@@ -119,8 +119,7 @@ class MainActivity : ComponentActivity() {
             if (database.menuItemDao().isEmpty()) {
                 try {
                     val menuItems = fetchMenu()
-                    val roomMenuItems = menuItems.map { it.toMenuItemRoom() }
-                    database.menuItemDao().insertAll(*roomMenuItems.toTypedArray())
+                    saveMenuToDatabase(menuItems)
                 } catch (e : Exception) {
                     e.printStackTrace()
                     Log.e(MAIN_ACTIVITY, e.localizedMessage ?: "Error: Unable to populate database from server")
